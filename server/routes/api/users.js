@@ -95,7 +95,7 @@ router.post('/login', (req, res) => {
                                 success: true,
                                 token: 'Bearer '+token,
                                 type: 'Bearer',
-                                expiresIn: 3600
+                                expiresIn: 36000
                             })
                         });
                     } else {
