@@ -65,13 +65,9 @@ router.delete('/:id', passport.authenticate('jwt', { session: false }), (req, re
 // @route   GET api/products/:id
 // @dsec    GET Single product
 // @access  Public
-router.get('/:id', passport.authenticate('jwt', { session: false }), (req, res) => {
+router.get('/:id', (req, res) => {
     Product.findById(req.params.id)
     .then(product => {
-        // Check for product owner
-        if(product.user.toString() !== req.user.id){
-            return res.json(401).json({notauthorized: 'User not authorized'});
-        }
         res.json(product);
     })
     .catch(err => res.status(400).json({noproductfound: 'no product found with that ID'}));
