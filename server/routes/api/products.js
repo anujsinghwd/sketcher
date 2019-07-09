@@ -1,7 +1,5 @@
 const express = require('express');
 const router = express.Router();
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
 const passport = require('passport');
 
 // Load Input Validation
@@ -71,6 +69,18 @@ router.get('/:id', (req, res) => {
         res.json(product);
     })
     .catch(err => res.status(400).json({noproductfound: 'no product found with that ID'}));
+});
+
+// @route   GET api/products/:skip/:limit
+// @dsec    GET products
+// @access  Public
+router.get('/:skip/:limit', (req, res) => {
+    let skips = (req.params.skip) ? req.params.skip : 0;
+    let limits = (req.params.limit) ? req.params.limit : 10;
+    Product.find({}).select({ "name": 1, "lname": 1, "brand": 1, "desc": 1}).skip(parseInt(skips)).limit(parseInt(limits))
+        .sort({date: -1})
+        .then(products => res.json(products))
+        .catch(err => res.status(400).json({noproductfound: 'no product found'}));
 });
 
 
