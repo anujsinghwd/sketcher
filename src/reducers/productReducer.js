@@ -1,5 +1,8 @@
 import {
-    GET_PRODUCTS
+    GET_PRODUCTS,
+    DELETE_PRODUCT,
+    UPDATE_PRODUCT,
+    ADD_PRODUCT
   } from '../actions/types';
   
   const initialState = {
@@ -13,6 +16,20 @@ import {
         return {
           ...state,
           products: action.payload
+        };
+      case DELETE_PRODUCT:
+        return {
+          ...state,
+          products: state.products.filter(product => product._id !== action.payload)
+        };
+      case ADD_PRODUCT:
+        return {
+          ...state,
+          products: [action.payload, ...state.products]
+        };
+      case UPDATE_PRODUCT:
+        return {
+          ...state
         };
       default:
         return state;

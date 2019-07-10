@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import MaterialTable from 'material-table';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { getProducts } from '../../actions/productActions';
+import { getProducts, deleteProduct, updateProduct, addProduct } from '../../actions/productActions';
 
 class ProductTable extends Component {
   constructor(props){
@@ -14,59 +14,73 @@ class ProductTable extends Component {
             { title: 'Description', field: 'desc'},
             {title: 'Brand Name',field: 'brandName'},
           ],
-          data: [
-            { name: 'Mehmet', lname: 'Baran', desc: 1987, brandName: 63 },
-            {
-              name: 'Zerya Betül',
-              lname: 'Baran',
-              desc: 2017,
-              brandName: 34,
-            },
-          ]
+      data: [],
+      limit: 10,
+      offset: 0
     }
   }
 
   componentDidMount(){
-    this.props.getProducts({limit: 10, offset: 0});
+    this.props.getProducts({limit: this.state.limit, offset: this.state.offset});
   }
 
   render() {
-    console.log(this.props.product);
+    if(this.props.product.products.length > 0 && this.state.data.length === 0){
+      this.props.product.products.forEach((e ,i) => {
+          e.desc = e.desc.val;
+          e.brandName = e.brand.name;
+      });
+      this.setState({data: this.props.product.products});
+    }
     return (
-      <MaterialTable
-      title="Products"
-      columns={this.state.columns}
-      data={this.state.data}
-      editable={{
-        onRowAdd: newData =>
-          new Promise(resolve => {
-            setTimeout(() => {
-              resolve();
-              const data = [...this.state.data];
-              data.push(newData);
-              this.setState({ ...this.state, data });
-            }, 600);
-          }),
-        onRowUpdate: (newData, oldData) =>
-          new Promise(resolve => {
-            setTimeout(() => {
-              resolve();
-              const data = [...this.state.data];
-              data[data.indexOf(oldData)] = newData;
-              this.setState({ ...this.state, data });
-            }, 600);
-          }),
-        onRowDelete: oldData =>
-          new Promise(resolve => {
-            setTimeout(() => {
-              resolve();
-              const data = [...this.state.data];
-              data.splice(data.indexOf(oldData), 1);
-              this.setState({ ...this.state, data });
-            }, 600);
-          }),
-      }}
-    />
+      <>
+        <MaterialTable
+          title="Products"
+          columns={this.state.columns}
+          data={this.state.data}
+          editable={{
+            onRowAdd: newData =>
+            new Promise(resolve => {
+              setTimeout(() => {
+                let reqData = newData;
+                resolve();
+                const data = [...this.state.data];
+                data.push(newData);
+                reqData.brandId = '123';
+                reqData.images = 'https://i.ytimg.com/vi/x4zz2yH1bLE/maxresdefault.jpg,https://i.ytimg.com/vi/x4zz2yH1bLE/maxresdefault.jpg';
+                this.props.addProduct(reqData);
+                this.setState({ ...this.state, data });
+              }, 600);
+            }),
+            onRowDelete: oldData =>
+              new Promise(resolve => {
+                setTimeout(() => {
+                  resolve();
+                  const data = [...this.state.data];
+                  let r = data.splice(data.indexOf(oldData), 1);
+                  this.setState({ ...this.state, data });
+                  this.props.deleteProduct(r[0]._id);
+                }, 600);
+              }),
+              onRowUpdate: (newData, oldData) =>
+              new Promise(resolve => {
+                setTimeout(() => {
+                  resolve();
+                  const data = [...this.state.data];
+                  data[data.indexOf(oldData)] = newData;
+                  let req = {};
+                  req.id = newData._id;
+                  req.brandName = (newData.brandName !== oldData.brandName) ? newData.brandName : false;
+                  req.name = (newData.name !== oldData.name) ? newData.name : false;
+                  req.lname = (newData.lname !== oldData.lname) ? newData.lname : false;
+                  req.desc = (newData.desc !== oldData.desc) ? newData.desc : false;
+                  this.props.updateProduct(req);
+                  this.setState({ ...this.state, data });
+                }, 600);
+              }),
+          }}
+        />
+      </>
     );
   }
 }
@@ -80,4 +94,4 @@ const mapStateToProp = state => ({
   product: state.product
 });
 
-export default connect(mapStateToProp, { getProducts })(ProductTable);
+export default connect(mapStateToProp, { getProducts, deleteProduct, updateProduct, addProduct })(ProductTable);

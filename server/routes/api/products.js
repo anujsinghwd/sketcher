@@ -42,6 +42,33 @@ router.post('/', passport.authenticate('jwt', { session: false }),(req, res) => 
      newProduct.save().then(post => res.json(post));
 });
 
+// @route   POST api/products/update
+// @dsec    Update Product
+// @access  Private
+router.post('/update', passport.authenticate('jwt', { session: false }),(req, res) => {
+      let desc = req.body.desc;
+      let name = req.body.name;
+      let lname = req.body.lname;
+      let brandName = req.body.brandName;
+      Product.findById(req.body.id)
+        .then(product => {
+            if(desc){
+              product.desc.val = desc;
+            }
+            if(name){
+              product.name = name;
+            }
+            if(lname){
+              product.lname = lname;
+            }
+            if(brandName){
+              product.brand.name = brandName;
+            }
+            product.save().then( product => res.json(product));
+        })
+        .catch(err => res.status(400).json({noproductfound: 'no product found with that ID'}));
+});
+
 // @route   DELETE api/products/:id
 // @dsec    DELETE product
 // @access  Private
