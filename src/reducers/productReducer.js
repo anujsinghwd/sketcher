@@ -7,7 +7,8 @@ import {
   
   const initialState = {
     products: [],
-    product: {}
+    product: {},
+    flag: false
   };
   
   export default function(state = initialState, action) {
@@ -20,16 +21,19 @@ import {
       case DELETE_PRODUCT:
         return {
           ...state,
-          products: state.products.filter(product => product._id !== action.payload)
+          products: state.products.filter(product => product._id !== action.payload),
+          flag: true
         };
       case ADD_PRODUCT:
         return {
           ...state,
-          products: [action.payload, ...state.products]
+          products: [action.payload, ...state.products],
+          flag: true
         };
       case UPDATE_PRODUCT:
         return {
-          ...state
+          ...state,
+          flag: true
         };
       default:
         return state;

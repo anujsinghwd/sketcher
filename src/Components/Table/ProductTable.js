@@ -3,6 +3,7 @@ import MaterialTable from 'material-table';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { getProducts, deleteProduct, updateProduct, addProduct } from '../../actions/productActions';
+import Toast from '../Common/Toast';
 
 class ProductTable extends Component {
   constructor(props){
@@ -16,7 +17,8 @@ class ProductTable extends Component {
           ],
       data: [],
       limit: 10,
-      offset: 0
+      offset: 0,
+      toastFlag: false
     }
   }
 
@@ -25,6 +27,11 @@ class ProductTable extends Component {
   }
 
   render() {
+    let toast;
+    if(this.props.product.flag){
+      toast = <Toast flag={true} type="success"/>
+      this.props.product.flag = false;
+    }
     if(this.props.product.products.length > 0 && this.state.data.length === 0){
       this.props.product.products.forEach((e ,i) => {
           e.desc = e.desc.val;
@@ -34,6 +41,7 @@ class ProductTable extends Component {
     }
     return (
       <>
+        { toast }
         <MaterialTable
           title="Products"
           columns={this.state.columns}
@@ -44,13 +52,15 @@ class ProductTable extends Component {
               setTimeout(() => {
                 let reqData = newData;
                 resolve();
-                const data = [...this.state.data];
-                data.push(newData);
-                reqData.brandId = '123';
-                reqData.images = 'https://i.ytimg.com/vi/x4zz2yH1bLE/maxresdefault.jpg,https://i.ytimg.com/vi/x4zz2yH1bLE/maxresdefault.jpg';
-                this.props.addProduct(reqData);
-                this.setState({ ...this.state, data });
-              }, 600);
+                if(reqData.brandName && reqData.name && reqData.lname && reqData.desc){
+                  const data = [...this.state.data];
+                  data.push(newData);
+                  reqData.brandId = '123';
+                  reqData.images = 'https://i.ytimg.com/vi/x4zz2yH1bLE/maxresdefault.jpg,https://i.ytimg.com/vi/x4zz2yH1bLE/maxresdefault.jpg';
+                  this.props.addProduct(reqData);
+                  this.setState({ ...this.state, data });
+                }
+              }, 500);
             }),
             onRowDelete: oldData =>
               new Promise(resolve => {
@@ -60,7 +70,7 @@ class ProductTable extends Component {
                   let r = data.splice(data.indexOf(oldData), 1);
                   this.setState({ ...this.state, data });
                   this.props.deleteProduct(r[0]._id);
-                }, 600);
+                }, 500);
               }),
               onRowUpdate: (newData, oldData) =>
               new Promise(resolve => {
@@ -75,8 +85,8 @@ class ProductTable extends Component {
                   req.lname = (newData.lname !== oldData.lname) ? newData.lname : false;
                   req.desc = (newData.desc !== oldData.desc) ? newData.desc : false;
                   this.props.updateProduct(req);
-                  this.setState({ ...this.state, data });
-                }, 600);
+                  this.setState({...this.state, data });
+                }, 500);
               }),
           }}
         />
